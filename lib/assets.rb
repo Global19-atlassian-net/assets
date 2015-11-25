@@ -23,6 +23,10 @@ module Pakyow
       @preprocessors ||= {}
     end
 
+    def self.dependents
+      @dependents ||= {}
+    end
+
     def self.compiled_asset_path_for_request_path(path)
       path = String.normalize_path(path)
       ext = File.extname(path)
@@ -70,7 +74,7 @@ module Pakyow
         Pakyow::Config.app.root,
         Pakyow::Config.assets.compiled_asset_path,
         asset_dir,
-        "#{asset_file + '-' + Digest::MD5.file(absolute_path).hexdigest + asset_ext}"
+        "#{asset_file + '-' + asset_hash(absolute_path) + asset_ext}"
       )
 
       unless File.exists?(compiled_path)
@@ -89,6 +93,12 @@ module Pakyow
           output_ext: output || ext,
           fingerprint_contents: fingerprint_contents
         }
+      end
+    end
+
+    def self.dependencies(*exts, &block)
+      exts.each do |ext|
+        dependents[ext] = block
       end
     end
 
@@ -139,6 +149,18 @@ module Pakyow
       end
 
       content
+    end
+
+    def self.asset_hash(absolute_path)
+      Digest::MD5.hexdigest(dependencies_for(absolute_path).concat([absolute_path]).map { |filename|
+        Digest::MD5.file(filename).hexdigest
+      }.flatten.join)
+    end
+
+    def self.dependencies_for(absolute_path)
+      block = dependents[normalize_ext(File.extname(absolute_path))]
+      return [] if block.nil?
+      block.call(absolute_path)
     end
   end
 end
