@@ -2,7 +2,7 @@ require 'sassc'
 require 'yui/compressor'
 
 Pakyow::Assets.preprocessor :scss, :sass, output: :css, fingerprint_contents: true do |path|
-  content = SassC::Engine.for_file(path, {}).render
+  content = SassC::Engine.new(File.open(path).read).render
 
   if Pakyow::Config.assets.minify
     begin
@@ -17,7 +17,7 @@ Pakyow::Assets.preprocessor :scss, :sass, output: :css, fingerprint_contents: tr
 end
 
 Pakyow::Assets.dependencies :scss, :sass do |path|
-  SassC::Engine.for_file(path, {}).dependencies.map { |dependency|
+  SassC::Engine.new(File.open(path).read).dependencies.map { |dependency|
     dependency.options[:filename]
   }
 end
