@@ -8,7 +8,7 @@ require_relative 'preprocessors/image-preprocessor'
 require_relative 'preprocessors/javascript-preprocessor'
 require_relative 'preprocessors/sass-preprocessor'
 
-Pakyow::App.before :init do
+Pakyow::App.after :init do
   config.assets.stores.each_pair do |name, path|
     Pakyow::Assets.register_path_with_name(path, name)
   end

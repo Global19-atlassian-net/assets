@@ -4,14 +4,14 @@ module Pakyow
   module Assets
     def self.register_path_with_name(path, name)
       stores[name] = {
-        path: String.normalize_path(path),
+        path: path,
         assets: assets_at_path(path)
       }
     end
 
     def self.assets_at_path(path)
       Dir.glob(File.join(path, '**/[!_]*.[a-z]*')).map { |asset|
-        String.normalize_path(asset.gsub(path, ''))
+        String.normalize_path(asset[path.length..-1])
       }
     end
 
