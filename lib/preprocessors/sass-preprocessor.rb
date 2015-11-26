@@ -17,7 +17,10 @@ Pakyow::Assets.preprocessor :scss, :sass, output: :css, fingerprint_contents: tr
 end
 
 Pakyow::Assets.dependencies :scss, :sass do |path|
-  SassC::Engine.new(File.open(path).read).dependencies.map { |dependency|
+  engine = SassC::Engine.new(File.open(path).read)
+  engine.render
+
+  engine.dependencies.map { |dependency|
     dependency.options[:filename]
   }
 end
