@@ -16,6 +16,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency('pakyow-core', '~> 0')
   spec.add_dependency('pakyow-presenter', '~> 0')
 
-  spec.add_dependency('sassc', '~> 1.8')
+  spec.add_dependency('sass', '~> 3.4')
   spec.add_dependency('yui-compressor', '~> 0.12')
 end
