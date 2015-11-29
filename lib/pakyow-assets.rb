@@ -24,6 +24,8 @@ Pakyow::App.after :init do
   end
 end
 
-Pakyow::App.middleware do |builder|
+# make sure this middleware executes first
+# FIXME: need an api for this on Pakyow::App
+Pakyow::App.class_variable_get(:@@middleware).unshift(lambda  { |builder|
   builder.use Pakyow::Assets::Middleware
-end
+})
