@@ -120,7 +120,7 @@ module Pakyow
           compile_asset_at_path(asset, info[:path])
           absolute_path = File.join(info[:path], asset)
 
-          fingerprint = Digest::MD5.file(absolute_path).hexdigest
+          fingerprint = asset_hash(absolute_path)
 
           fingerprinted_asset = File.join(
             File.dirname(asset),
