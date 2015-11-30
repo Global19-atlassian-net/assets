@@ -82,7 +82,7 @@ module Pakyow
       asset_file = File.basename(asset, '.*')
 
       if fingerprinted?(asset_ext)
-        compiled_asset = "#{asset_file + '-' + asset_hash(absolute_path) + asset_ext}"
+        compiled_asset = "#{asset_file + '__' + asset_hash(absolute_path) + asset_ext}"
       else
         compiled_asset = "#{asset_file + asset_ext}"
       end
@@ -98,7 +98,7 @@ module Pakyow
         FileUtils.mkdir_p(File.dirname(compiled_path))
 
         if fingerprinted?(asset_ext)
-          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}-*#{asset_ext}")
+          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}__*#{asset_ext}")
         else
           glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, asset_file + asset_ext)
         end
@@ -149,7 +149,7 @@ module Pakyow
           if fingerprinted?(File.extname(asset))
             fingerprinted_asset = File.join(
               File.dirname(asset),
-              "#{File.basename(asset, '.*')}-#{fingerprint + output_ext(File.extname(asset))}",
+              "#{File.basename(asset, '.*')}__#{fingerprint + output_ext(File.extname(asset))}",
             )
           else
             fingerprinted_asset = File.join(
@@ -192,7 +192,7 @@ module Pakyow
       return content if content.nil? || content.empty?
 
       manifest.each do |asset, info|
-        content = content.gsub(asset, info[:fingerprinted_asset])
+        content = content.gsub(/("\/#{asset}")|('\/#{asset}')/, File.join('/', info[:fingerprinted_asset]))
       end
 
       content
