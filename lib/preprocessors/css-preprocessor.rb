@@ -1,7 +1,7 @@
 require 'yui/compressor'
 
-Pakyow::Assets.preprocessor :css, fingerprint_contents: true do |path|
-  content = File.open(path).read
+Pakyow::Assets.preprocessor :css, fingerprint: true, fingerprint_contents: true do |path|
+  content = File.read(path)
 
   if Pakyow::Config.assets.minify
     begin

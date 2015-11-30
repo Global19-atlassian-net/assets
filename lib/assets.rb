@@ -56,11 +56,22 @@ module Pakyow
     end
 
     def self.output_ext(ext)
-      ".#{preprocessors[normalize_ext(ext)][:output_ext]}"
+      ".#{preprocessor_for_ext(ext)[:output_ext]}"
     end
 
     def self.preprocessor?(ext)
       preprocessors.values.map { |info| info[:output_ext] }.flatten.include?(normalize_ext(ext))
+    end
+
+    def self.preprocessor_for_ext(ext)
+      ext = normalize_ext(ext)
+
+      preprocessors[ext] || {
+        block: nil,
+        output_ext: ext,
+        fingerprint_contents: false,
+        finterprint: false
+      }
     end
 
     def self.compile_asset_at_path(asset, path)
@@ -92,12 +103,13 @@ module Pakyow
       compiled_path
     end
 
-    def self.preprocessor(*exts, output: nil, fingerprint_contents: false, &block)
+    def self.preprocessor(*exts, output: nil, fingerprint: false, fingerprint_contents: false, &block)
       exts.each do |ext|
         preprocessors[ext] = {
           block: block,
           output_ext: output || ext,
-          fingerprint_contents: fingerprint_contents
+          fingerprint_contents: fingerprint_contents,
+          fingerprint: fingerprint
         }
       end
     end
@@ -109,11 +121,10 @@ module Pakyow
     end
 
     def self.preprocess(path)
-      preprocessor = preprocessors[normalize_ext(File.extname(path))]
+      preprocessor = preprocessor_for_ext(File.extname(path))
       block = preprocessor[:block]
 
-      contents = block.nil? ? File.open(path, 'rb').read : block.call(path)
-      preprocessor[:fingerprint_contents] ? mixin_fingerprints(contents) : contents
+      block.nil? ? File.read(path) : block.call(path)
     end
 
     def self.precompile
@@ -145,8 +156,24 @@ module Pakyow
             File.basename(asset, '.*') + output_ext(File.extname(asset)),
           )
 
-          manifest[replaceable_asset] = fingerprinted_asset
+          manifest[replaceable_asset] = {
+            original_ext: File.extname(asset),
+            fingerprinted_asset: fingerprinted_asset
+          }
         end
+      end
+
+      base = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path)
+
+      manifest.each do |replaceable_asset, info|
+        next unless fingerprint_contents?(info[:original_ext])
+
+        path = File.join(base, info[:fingerprinted_asset])
+
+        content = File.read(path)
+        File.open(path, 'wb') { |file|
+          file.write(mixin_fingerprints(content))
+        }
       end
     end
 
@@ -157,8 +184,8 @@ module Pakyow
     def self.mixin_fingerprints(content)
       return content if content.nil? || content.empty?
 
-      manifest.each do |asset, fingerprinted_asset|
-        content = content.gsub(asset, fingerprinted_asset)
+      manifest.each do |asset, info|
+        content = content.gsub(asset, info[:fingerprinted_asset])
       end
 
       content
@@ -177,7 +204,11 @@ module Pakyow
     end
 
     def self.fingerprinted?(ext)
-      preprocessors[normalize_ext(ext)][:fingerprint_contents]
+      preprocessor_for_ext(ext)[:fingerprint]
+    end
+
+    def self.fingerprint_contents?(ext)
+      preprocessor_for_ext(ext)[:fingerprint_contents]
     end
   end
 end
