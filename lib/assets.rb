@@ -96,7 +96,14 @@ module Pakyow
 
       unless File.exists?(compiled_path)
         FileUtils.mkdir_p(File.dirname(compiled_path))
-        FileUtils.rm(Dir.glob(File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}*#{asset_ext}")))
+
+        if fingerprinted?(asset_ext)
+          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}-*#{asset_ext}")
+        else
+          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, asset_file + asset_ext)
+        end
+
+        FileUtils.rm(Dir.glob(glob_path))
         File.open(compiled_path, 'wb+') { |fp| fp.write(preprocess(absolute_path)) }
       end
 
