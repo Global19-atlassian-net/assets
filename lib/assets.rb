@@ -70,16 +70,22 @@ module Pakyow
       asset_ext = output_ext(File.extname(asset))
       asset_file = File.basename(asset, '.*')
 
+      if fingerprinted?(asset_ext)
+        compiled_asset = "#{asset_file + '-' + asset_hash(absolute_path) + asset_ext}"
+      else
+        compiled_asset = "#{asset_file + asset_ext}"
+      end
+
       compiled_path = File.join(
         Pakyow::Config.app.root,
         Pakyow::Config.assets.compiled_asset_path,
         asset_dir,
-        "#{asset_file + '-' + asset_hash(absolute_path) + asset_ext}"
+        compiled_asset
       )
 
       unless File.exists?(compiled_path)
         FileUtils.mkdir_p(File.dirname(compiled_path))
-        FileUtils.rm(Dir.glob(File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}-*#{asset_ext}")))
+        FileUtils.rm(Dir.glob(File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}*#{asset_ext}")))
         File.open(compiled_path, 'wb+') { |fp| fp.write(preprocess(absolute_path)) }
       end
 
@@ -122,10 +128,17 @@ module Pakyow
 
           fingerprint = asset_hash(absolute_path)
 
-          fingerprinted_asset = File.join(
-            File.dirname(asset),
-            "#{File.basename(asset, '.*')}-#{fingerprint + output_ext(File.extname(asset))}",
-          )
+          if fingerprinted?(File.extname(asset))
+            fingerprinted_asset = File.join(
+              File.dirname(asset),
+              "#{File.basename(asset, '.*')}-#{fingerprint + output_ext(File.extname(asset))}",
+            )
+          else
+            fingerprinted_asset = File.join(
+              File.dirname(asset),
+              File.basename(asset, '.*') + output_ext(File.extname(asset)),
+            )
+          end
 
           replaceable_asset = File.join(
             File.dirname(asset),
@@ -161,6 +174,10 @@ module Pakyow
       block = dependents[normalize_ext(File.extname(absolute_path))]
       return [] if block.nil?
       block.call(absolute_path)
+    end
+
+    def self.fingerprinted?(ext)
+      preprocessors[normalize_ext(ext)][:fingerprint_contents]
     end
   end
 end

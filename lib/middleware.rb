@@ -21,7 +21,7 @@ module Pakyow
               'Content-Type' => Rack::Mime.mime_type(File.extname(path))
             }
 
-            if Pakyow::Config.assets.cache
+            if Pakyow::Config.assets.cache && Pakyow::Assets.fingerprinted?(File.extname(path))
               mtime = File.mtime(path)
               headers['Age'] = (Time.now - mtime).to_i
               headers['Cache-Control'] = 'public, max-age=31536000'
