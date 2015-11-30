@@ -1,3 +1,5 @@
+require 'time'
+
 module Pakyow
   module Assets
     class Middleware
@@ -25,6 +27,8 @@ module Pakyow
               mtime = File.mtime(path)
               headers['Age'] = (Time.now - mtime).to_i
               headers['Cache-Control'] = 'public, max-age=31536000'
+              headers['Vary'] = 'Accept-Encoding'
+              headers['Last-Modified'] = mtime.httpdate
             end
 
             [200, headers, File.open(path)]
