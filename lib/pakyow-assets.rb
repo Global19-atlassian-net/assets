@@ -26,6 +26,6 @@ end
 
 # make sure this middleware executes first
 # FIXME: need an api for this on Pakyow::App
-Pakyow::App.instance_variable_get(:@middleware).unshift(lambda  { |builder|
+Pakyow::App.middleware.unshift(lambda  { |builder|
   builder.use Pakyow::Assets::Middleware
 })
