@@ -16,9 +16,6 @@ module Pakyow
 
         if path =~ /\.(.*)$/ && File.exists?(path)
           catch :halt do
-            app = Pakyow.app.dup
-            app.context = AppContext.new(Request.new(env), Response.new)
-
             headers = {
               'Content-Type' => Rack::Mime.mime_type(File.extname(path))
             }
