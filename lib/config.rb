@@ -22,6 +22,9 @@ Pakyow::Config.register(:assets) { |config|
   # whether or not to minify the assets
   config.opt :minify
 
+  # the prefix to add to asset names (useful for cdn)
+  config.opt :prefix, '/'
+
 }.env(:development) { |opts|
   opts.cache = false
   opts.compile_on_request = true

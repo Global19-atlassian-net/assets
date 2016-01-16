@@ -192,7 +192,7 @@ module Pakyow
       return content if content.nil? || content.empty?
 
       manifest.each do |asset, info|
-        content = content.gsub(/("\/#{asset}")|('\/#{asset}')/, File.join('/', info[:fingerprinted_asset]))
+        content = content.gsub(/("\/#{asset}")|('\/#{asset}')/, File.join(Pakyow::Config.assets.prefix, info[:fingerprinted_asset]))
       end
 
       content
