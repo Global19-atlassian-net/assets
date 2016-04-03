@@ -135,10 +135,30 @@ module Pakyow
     end
 
     def self.precompile
+      manifest
+
       if File.exists?(Pakyow::Config.assets.compiled_asset_path)
         FileUtils.rm_r(Pakyow::Config.assets.compiled_asset_path)
       end
 
+      base = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path)
+
+      manifest.each do |replaceable_asset, info|
+        next unless fingerprint_contents?(info[:original_ext])
+
+        path = File.join(base, info[:fingerprinted_asset])
+
+        content = File.read(path)
+        File.open(path, 'wb') { |file|
+          file.write(mixin_fingerprints(content))
+        }
+      end
+    end
+
+    def self.manifest
+      return @manifest unless @manifest.nil?
+
+      @manifest = {}
       stores.each do |_, info|
         info[:assets].each do |asset|
           compile_asset_at_path(asset, info[:path])
@@ -163,29 +183,14 @@ module Pakyow
             File.basename(asset, '.*') + output_ext(File.extname(asset)),
           )
 
-          manifest[replaceable_asset] = {
+          @manifest[replaceable_asset] = {
             original_ext: File.extname(asset),
             fingerprinted_asset: fingerprinted_asset
           }
         end
       end
 
-      base = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path)
-
-      manifest.each do |replaceable_asset, info|
-        next unless fingerprint_contents?(info[:original_ext])
-
-        path = File.join(base, info[:fingerprinted_asset])
-
-        content = File.read(path)
-        File.open(path, 'wb') { |file|
-          file.write(mixin_fingerprints(content))
-        }
-      end
-    end
-
-    def self.manifest
-      @manifest ||= {}
+      @manifest
     end
 
     def self.mixin_fingerprints(content)
