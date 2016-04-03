@@ -137,10 +137,6 @@ module Pakyow
     def self.precompile
       manifest
 
-      if File.exists?(Pakyow::Config.assets.compiled_asset_path)
-        FileUtils.rm_r(Pakyow::Config.assets.compiled_asset_path)
-      end
-
       base = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path)
 
       manifest.each do |replaceable_asset, info|
