@@ -12,9 +12,9 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split("\n")
   spec.license       = 'MIT'
 
-  spec.add_dependency('pakyow-support', '~> 0')
-  spec.add_dependency('pakyow-core', '~> 0')
-  spec.add_dependency('pakyow-presenter', '~> 0')
+  spec.add_dependency('pakyow-support', '>= 0.11')
+  spec.add_dependency('pakyow-core', '>= 0.11')
+  spec.add_dependency('pakyow-presenter', '>= 0.11')
 
   spec.add_dependency('sass', '~> 3.4')
   spec.add_dependency('yui-compressor', '~> 0.12')
