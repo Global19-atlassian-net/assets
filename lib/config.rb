@@ -8,29 +8,23 @@ Pakyow::Config.register(:assets) { |config|
   }
 
   # whether or not pakyow should host assets
-  config.opt :compile_on_request
+  config.opt :compile_on_request, true
 
   # whether pakyow should compile assets on startup
-  config.opt :compile_on_startup
+  config.opt :compile_on_startup, false
 
   # where assets should be compiled to
-  config.opt :compiled_asset_path
+  config.opt :compiled_asset_path, ".assets"
 
   # whether or not to cache the assets
-  config.opt :cache
+  config.opt :cache, false
 
   # whether or not to minify the assets
-  config.opt :minify
+  config.opt :minify, false
 
   # the prefix to add to asset names (useful for cdn)
   config.opt :prefix, '/'
 
-}.env(:development) { |opts|
-  opts.cache = false
-  opts.compile_on_request = true
-  opts.compile_on_startup = false
-  opts.compiled_asset_path = '.assets'
-  opts.minify = false
 }.env(:production) { |opts|
   opts.cache = true
   opts.compile_on_request = false
