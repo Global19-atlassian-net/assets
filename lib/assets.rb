@@ -86,21 +86,16 @@ module Pakyow
       else
         compiled_asset = "#{asset_file + asset_ext}"
       end
-
-      compiled_path = File.join(
-        Pakyow::Config.app.root,
-        Pakyow::Config.assets.compiled_asset_path,
-        asset_dir,
-        compiled_asset
-      )
+      
+      compiled_path = File.join(root_path, asset_dir, compiled_asset)
 
       unless File.exists?(compiled_path)
         FileUtils.mkdir_p(File.dirname(compiled_path))
 
         if fingerprinted?(asset_ext)
-          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, "#{asset_file}__*#{asset_ext}")
+          glob_path = File.join(root_path, asset_dir, "#{asset_file}__*#{asset_ext}")
         else
-          glob_path = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path, asset_dir, asset_file + asset_ext)
+          glob_path = File.join(root_path, asset_dir, asset_file + asset_ext)
         end
 
         FileUtils.rm(Dir.glob(glob_path))
@@ -137,7 +132,7 @@ module Pakyow
     def self.precompile
       manifest
 
-      base = File.join(Pakyow::Config.app.root, Pakyow::Config.assets.compiled_asset_path)
+      base = root_path
 
       manifest.each do |replaceable_asset, info|
         next unless fingerprint_contents?(info[:original_ext])
@@ -217,6 +212,15 @@ module Pakyow
 
     def self.fingerprint_contents?(ext)
       preprocessor_for_ext(ext)[:fingerprint_contents]
+    end
+    
+    def self.root_path
+      Pakyow::Config.assets.absolute_compiled_asset_path
+    rescue Pakyow::ConfigError
+      File.join(
+        Pakyow::Config.app.root,
+        Pakyow::Config.assets.compiled_asset_path
+      )
     end
   end
 end
