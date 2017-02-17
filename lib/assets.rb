@@ -130,7 +130,11 @@ module Pakyow
     end
 
     def self.precompile
-      manifest
+      stores.each do |_, info|
+        info[:assets].each do |asset|
+          compile_asset_at_path(asset, info[:path])
+        end
+      end
 
       base = root_path
 
@@ -152,7 +156,6 @@ module Pakyow
       @manifest = {}
       stores.each do |_, info|
         info[:assets].each do |asset|
-          compile_asset_at_path(asset, info[:path])
           absolute_path = File.join(info[:path], asset)
 
           fingerprint = asset_hash(absolute_path)
