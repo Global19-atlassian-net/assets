@@ -46,7 +46,7 @@ module Pakyow
     end
 
     def self.normalize_ext(ext)
-      ext.gsub(/[^a-z]/, '').to_sym
+      ext.gsub(/[^a-z0-9]/, '').to_sym
     end
 
     def self.alias_exts(ext)
