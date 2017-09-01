@@ -14,7 +14,7 @@ module Pakyow
           path = File.join(Pakyow::Config.assets.compiled_asset_path, env['PATH_INFO'])
         end
 
-        if path =~ /\.(.*)$/ && File.exists?(path)
+        if path =~ /\.(.*)$/ && File.file?(path)
           catch :halt do
             headers = {
               'Content-Type' => Rack::Mime.mime_type(File.extname(path))
